@@ -11,7 +11,7 @@ typedef struct ghb_entry {
 	Addr addr;
 	ghb_entry *next_ptr;
 	ghb_entry *previous_ptr;
-	ghb_entry *successor;
+	int stride;
 } ghb_entry_t;
 
 typedef struct {
@@ -23,7 +23,6 @@ FILE *file;
 //index_table_t *index_table;
 index_table_t index_table[INDEX_TABLE_SIZE];
 queue<ghb_entry_t*> ghb;
-ghb_entry_t *successor;
 
 unsigned int hash_index(Addr addr) {
 	return (unsigned int)(addr % INDEX_TABLE_SIZE);
@@ -34,21 +33,26 @@ int in_index_table(Addr addr, unsigned int index) {
 	return 0;
 }
 
+int calculate_stride(Addr a1, Addr a2)
+{
+	return (int)(a1 - a2);
+}
 
 void prefetch_init(void)
 {		
-		file = fopen("/home/ole/skole/dmark/framework/prefetcher/prefetch_log.txt", "a+");
-		fprintf(file, "NEW LOG\n");
+	char buffer[50];
+	sprintf(buffer, "/home/user/logs/logfile_%d.txt", getpid());
+	
+	file = fopen(buffer, "a+");
+	fprintf(file, "NEW LOG\n");
 
-		//index_table = (index_table_t *) calloc(INDEX_TABLE_SIZE, sizeof(index_table_t));
+	//index_table = (index_table_t *) calloc(INDEX_TABLE_SIZE, sizeof(index_table_t));
 
-		// Initialize index table
-		for (int i = 0; i < INDEX_TABLE_SIZE; i++) {
-			index_table[i].addr = 0;
-			index_table[i].ghb_ptr = NULL;
-		}
-
-		successor = NULL;
+	// Initialize index table
+	for (int i = 0; i < INDEX_TABLE_SIZE; i++) {
+		index_table[i].addr = 0;
+		index_table[i].ghb_ptr = NULL;
+	}
 
     DPRINTF(HWPrefetch, "Initialized Markov prefetcher\n");
 }
@@ -56,10 +60,10 @@ void prefetch_init(void)
 void prefetch_access(AccessStat stat)
 {	
 	unsigned int i;
-	if (stat.miss) {
-		i = hash_index(stat.mem_addr);
-		if (in_index_table(stat.mem_addr, i) == 0)	{
-			index_table[i].addr = stat.mem_addr;
+	if (true) {
+		i = hash_index(stat.pc);
+		if (in_index_table(stat.pc, i) == 0)	{
+			index_table[i].addr = stat.pc;
 
 			// If FIFO is full, remove an entry to make room for a new one
 			if (ghb.size() == GLOBAL_HISTORY_BUFFER_SIZE) {
@@ -69,41 +73,47 @@ void prefetch_access(AccessStat stat)
 				// to remove, set this pointer to NULL
 				if (tmp->previous_ptr != NULL) tmp->previous_ptr->next_ptr = NULL;
 				ghb.pop();
-				free(tmp);
 			}
-			ghb_entry_t *new_ghb_entry = (ghb_entry_t *) malloc(sizeof(ghb_entry_t));
+			
+			ghb_entry_t *new_ghb_entry = new ghb_entry_t; 
+			
+			if(!ghb.empty()) {
+				ghb.back()->stride = calculate_stride(stat.mem_addr, ghb.back()->addr);
+			}
+			
 			new_ghb_entry->addr = stat.mem_addr;
 			new_ghb_entry->next_ptr = NULL;
 			new_ghb_entry->previous_ptr = NULL;
-			new_ghb_entry->successor = successor;
-			successor = new_ghb_entry;
+			new_ghb_entry->stride = 0;
 			ghb.push(new_ghb_entry);	
 			index_table[i].ghb_ptr = new_ghb_entry;
 
 			// Use sequential prefetching when the address appears for
 			// the first time.
-			Addr prefetch_addr = stat.mem_addr + BLOCK_SIZE;
-			if (!in_cache(prefetch_addr)) issue_prefetch(prefetch_addr);
+			//Addr prefetch_addr = stat.mem_addr + BLOCK_SIZE;
+			//if (!in_cache(prefetch_addr)) issue_prefetch(prefetch_addr);
 		}
 		else {
-			fprintf(file, "Address already in index table (index %d). Searching for prefetch candidates\n", i);
-			Addr prefetch_addr;
+			//fprintf(file, "Address already in index table (index %d). Searching for prefetch candidates\n", i);
 			int j = 0;
 			ghb_entry_t *old_entry = index_table[i].ghb_ptr;
+			
+			Addr prefetch_addr = (Addr) old_entry->stride + stat.mem_addr;	
+			if (!in_cache(prefetch_addr) && prefetch_addr <= MAX_PHYS_MEM_ADDR) issue_prefetch(prefetch_addr);
+
 			ghb_entry_t *next_entry = old_entry->next_ptr;
 			
-			fprintf(file, "next_ptr: %p, next_entry->addr: %ld, stat.mem_addr: %ld\n", next_entry,
-			next_entry->addr, stat.mem_addr);
+			//fprintf(file, "next_ptr: %p, next_entry->addr: %ld, stat.mem_addr: %ld\n", next_entry,
+			//next_entry->addr, stat.mem_addr);
 
-			while((next_entry != NULL) && 
-						(next_entry->addr == stat.mem_addr) && 
-						j < 2) {
-				fprintf(file, "INSIDE WHILE-LOOP!!!!\n");
-				prefetch_addr = next_entry->successor->addr;
-				if (!in_cache(prefetch_addr)) {
+			while(next_entry != NULL && j < 1) {
+				
+				//fprintf(file, "INSIDE WHILE-LOOP!!!!\n");
+				prefetch_addr = (Addr) next_entry->stride + stat.mem_addr;
+				if (!in_cache(prefetch_addr) && prefetch_addr <= MAX_PHYS_MEM_ADDR) {
 					issue_prefetch(prefetch_addr);
 					j++;
-					fprintf(file, "Issuing a prefetch\n");
+					//fprintf(file, "Issuing a prefetch\n");
 				}
 				next_entry = next_entry->next_ptr;
 			}
@@ -112,14 +122,14 @@ void prefetch_access(AccessStat stat)
 				ghb_entry_t *tmp = ghb.front();
 				if (tmp->previous_ptr != NULL) tmp->previous_ptr->next_ptr = NULL;
 				ghb.pop();
-				free(tmp);
 			}
-			ghb_entry_t *new_entry = (ghb_entry_t *) malloc(sizeof(ghb_entry_t));
+			
+			ghb_entry_t *new_entry = new ghb_entry_t;
 			new_entry->addr = stat.mem_addr;
 			new_entry->next_ptr = old_entry;
 			new_entry->previous_ptr = NULL;
-			new_entry->successor = successor;
-			successor = new_entry;
+			new_entry->stride = 0;
+			ghb.back()->stride = calculate_stride(stat.mem_addr, ghb.back()->addr);
 			old_entry->previous_ptr = new_entry;
 			ghb.push(new_entry);
 			index_table[i].ghb_ptr = new_entry;
