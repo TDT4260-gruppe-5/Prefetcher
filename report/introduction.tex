@@ -6,7 +6,7 @@ and thereby increases the overall computer efficiency.
 
 Several schemes can be used to implement a prefetcher. Our prefetcher uses a scheme called
 \emph{stride}. It essentially consists of a table that is index by the program counter (PC) and it
-stores, amongst other things, a stride that is the difference between the two most recent miss
-addresses for a particular program counter address. When the prefetcher detects a pattern in the
+stores, amongst other things, a stride that is the difference between the two most recent memory
+accesses for a particular load instruction. When the prefetcher detects a pattern in the
 strides it uses the stride value to prefetch what it assumes to be data that the processor needs in
 the near future.
