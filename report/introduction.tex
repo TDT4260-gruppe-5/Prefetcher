@@ -1,7 +1,7 @@
 The gap between processor speed and main memory speed has for many years increased dramatically. To
 attack this problem several solutions has been proposed and implemented. One of them is prefetching
-where the processor gets the instruction and data before it is used so it doesn't have to wait for
-it when it actually has to use it. Prefetching helps to decrease the average memory access time
+where the processor gets the instruction and data before it is used so it does not have to wait for
+it when it actually has to use it. Prefetching attempts to decrease the average memory access time
 and thereby increases the overall computer efficiency.
 
 Several schemes can be used to implement a prefetcher. Our prefetcher uses a scheme called
@@ -10,4 +10,3 @@ stores, amongst other things, a stride that is the difference between the two mo
 addresses for a particular program counter address. When the prefetcher detects a pattern in the
 strides it uses the stride value to prefetch what it assumes to be data that the processor needs in
 the near future.
-
