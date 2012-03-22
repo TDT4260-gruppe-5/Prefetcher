@@ -1,6 +1,10 @@
 To evaluate the performance of various prefetchers, we have used
 a subset of the SPEC CPU2000 benchmarks in association with the M5
-simulator. The benchmarks were started at a checkpoint taken after
+simulator. The subset consists of bzip2\_graphic, bzip2\_program, bzip2\_source and twolf from
+SPECint and ammp, applu, apsi, art110, art470, galgel, swim and wupwise from SPECfp.
+These programs were chosen by the course staff for us.
+
+The benchmarks were started at a checkpoint taken after
 1,000,000,000 instructions, and then run for 100,000,000 instructions.
 The simulated computer uses an ALPHA CPU running at 2GHz
 with a 2-way 64KB L1 data cache. It also has an 8-way 2MB L2 cache that is
