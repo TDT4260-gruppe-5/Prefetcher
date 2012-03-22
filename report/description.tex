@@ -1,0 +1,56 @@
+As mentioned above our prefetcher is a stride prefetcher. It tries to detect a
+pattern in the access history, and use this pattern to predict future
+references. Patterns could be detected on a global or a local (per PC) basis.
+After reviewing statistics gathered from SPEC CPU2000 benchmarks we decided to
+focus on local patterns. This was because the global access stream had little
+extra information that could not be extracted from the local streams with less
+work. In most benchmarks the memory accesses are done by a few instructions
+that operate in a very predictable fashion.
+
+\subsection{Table}
+
+To keep track of the previous memory accesses of a program counter we use a
+table. Each table entry contains a list of the ten last memory accesses by the
+program counter that maps to this entry. Because the table size is much smaller
+than the number of possible program counters, several instructions could map to
+the same table entry. If this happened in a real program it could lead to less
+than optimal prefetching. With a sufficiently large table the chance of two
+instructions clashing would be negligible. In addition the table entry is found
+by taking the program counter modulo the table size. This ensures that
+instructions that is less than table size apart will map to different table
+entries.
+
+\subsection{Pattern Matching}
+
+The patterns our prefetcher tries to detect are on the form in
+Figure~\ref{fig:pattern}. It looks at the n last memory accesses, and checks if
+entry $k$ matches entry $k + \frac{n}{2}$. If the number of matching entries
+are above some threshold, it will use the pattern to prefetch.
+
+\subsection{Most Common Stride}
+
+In addition to the pattern matching above, we also used most common stride
+prefetching. This was added as a fallback measure if the pattern matching code
+was unable to find a pattern. It looks for the most common stride, and if there
+is more than some number of these strides it will use this stride to prefetch a
+set number of cachelines. Table~\ref{table:mcs} shows a history of accesses
+where the most common stride is 64.
+\begin{table}
+	\caption{Example of Most Common Stride}
+	\label{table:mcs}
+	\begin{tabular}{c|c}
+		\bfseries Address & \bfseries Stride\\
+		\hline
+		0   & \\
+		    & 64\\
+		64  & \\
+		    & 64\\
+		128 & \\
+		    & 128\\
+		256 & \\
+		    & 64\\
+		320 & \\
+		    & 64\\
+		386 & \\
+	\end{tabular}
+\end{table}
