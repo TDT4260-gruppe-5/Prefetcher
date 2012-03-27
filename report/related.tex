@@ -3,10 +3,14 @@ prefetching heuristics. They range from the very simple sequential ones, that
 simply fetches the address after the current one, to more complex ones that
 tries to find patterns and use dynamically gathered statistics to guide them.
 
-Our prefetcher is a stride prefetcher.
+An important subclass of prefetchers is stride prefetchers. These try to find a
+pattern in the difference between consecutive memory addresses (called a
+stride). If a pattern of strides is found it can be used to prefetch the next
+address that will be needed. Our prefetcher is a stride prefetcher.
 
 \subsection{}
 
 
 \subsection{DCPT}
 Delta Correlation Prediction Tables
+\cite{dcpt}
