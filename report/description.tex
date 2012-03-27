@@ -23,13 +23,71 @@ entries.
 \subsection{Pattern Matching}
 
 The patterns our prefetcher tries to detect are on the form in
-Figure~\ref{fig:pattern}. It looks at the n last memory accesses, and checks if
-entry $k$ matches entry $k + \frac{n}{2}$. If the number of matching entries
-are above some threshold, it will use the pattern to prefetch.
+Table~\ref{table:pattern}.
+We see the addresses, and the relative and absolute strides.
+The relative stride is the difference between two consequtive
+addresses.
+Absolute strides are a calculated by choosing a pattern size n,
+and then computing the difference between the address at position
+n to every address before $n$, and then doing the same for the address
+at position $2n$.
+That is,
+\[
+	s_i = \begin{cases}
+		a_i - a_n,    & \text{if } i \in \{0 \dots n -1\}\\
+		a_i - a_{2n}, & \text{if } i \in \{n \dots 2n - 1\}
+	\end{cases}
+\]
+where $s_i$ is the $i$th absolute stride, and $a_i$ is the address at position
+$i$ in the table. Note that the newest address is at index 0 in the table. A
+perfect match is found if
+\begin{equation}
+\label{eq:match}
+\forall i \in \{0 \dots n - 1\} \,.\, s_i = s_{i + n}
+\end{equation}
+
+It is also possible to find a partial match. We then simply relax the
+requirement in equation \eqref{eq:match} that all strides have to match, to
+that at least some percentage has to match.
+
+\begin{table}
+	\caption{Example of pattern with n=4}
+	\label{table:pattern}
+	\centering
+	\begin{tabular}{c|c|c|c|c}
+		\bfseries Position &
+		\bfseries Address &
+		\bfseries Stride &
+		\bfseries Stride &
+		\bfseries Stride \\
+		& &
+		\bfseries (Relative) &
+		\bfseries (Absolute) &
+		\bfseries Index \\
+		\hline
+		0 & 896   & & \\
+		  &	& 64 & 448 & 0 \\
+		1 & 832  & & \\
+		  & & 64 & 384 & 1 \\
+		2 & 768 & & \\
+		  & & 128 & 320 & 2 \\
+		3 & 640 & & \\
+		  & & 192 & 192 & 3 \\
+		4 & 448 & & \\
+		  &	& 64 & 448 & 4 \\
+		5 & 384 & & \\
+		  &	& 64 & 384 & 5 \\
+		6 & 320 & & \\
+		  &	& 128 & 320 & 6 \\
+		7 & 192 & & \\
+		  &	& 192 & 192 & 7 \\
+		8 & 0 & & \\
+	\end{tabular}
+\end{table}
 
 \subsection{Most Common Stride}
 
-In addition to the pattern matching above, we also used most common stride
+In addition to the pattern matching above, we also implemented most common stride
 prefetching. This was added as a fallback measure if the pattern matching code
 was unable to find a pattern. It looks for the most common stride, and if there
 is more than some number of these strides it will use this stride to prefetch a
@@ -37,9 +95,10 @@ set number of cachelines. Table~\ref{table:mcs} shows a history of accesses
 where the most common stride is 64.
 \begin{table}
 	\caption{Example of Most Common Stride}
+	\centering
 	\label{table:mcs}
 	\begin{tabular}{c|c}
-		\bfseries Address & \bfseries Stride\\
+		\bfseries Address & \bfseries Stride (Relative)\\
 		\hline
 		0   & \\
 		    & 64\\
