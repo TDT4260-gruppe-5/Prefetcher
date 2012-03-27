@@ -25,7 +25,7 @@ entries.
 The patterns our prefetcher tries to detect are on the form in
 Table~\ref{table:pattern}.
 We see the addresses, and the relative and absolute strides.
-The relative stride is the difference between two consequtive
+The relative stride is the difference between two consecutive
 addresses.
 Absolute strides are a calculated by choosing a pattern size n,
 and then computing the difference between the address at position
@@ -38,7 +38,7 @@ That is,
 		a_i - a_{2n}, & \text{if } i \in \{n \dots 2n - 1\}
 	\end{cases}
 \]
-where $s_i$ is the $i$th absolute stride, and $a_i$ is the address at position
+where $s_i$~is the $i$th absolute stride, and $a_i$~is the address at position
 $i$ in the table. Note that the newest address is at index 0 in the table. A
 perfect match is found if
 \begin{equation}
@@ -91,7 +91,7 @@ In addition to the pattern matching above, we also implemented most common strid
 prefetching. This was added as a fallback measure if the pattern matching code
 was unable to find a pattern. It looks for the most common stride, and if there
 is more than some number of these strides it will use this stride to prefetch a
-set number of cachelines. Table~\ref{table:mcs} shows a history of accesses
+set number of cache lines. Table~\ref{table:mcs} shows a history of accesses
 where the most common stride is 64.
 \begin{table}
 	\caption{Example of Most Common Stride}
