@@ -8,7 +8,7 @@ miss rate in the average memory access time equation: $ \textit{hit rate} \times
 
 Several schemes can be used to implement a prefetcher. Our prefetcher uses a scheme called
 \emph{stride}. It essentially consists of a table that is index by the program counter (PC) and it
-stores, amongst other things, all L2 access addresses. It then computes the difference between the
+stores all L2 cache access addresses. It then computes the difference between the
 two most recent memory accesses, called a stride, for a particular load instruction. When the
 prefetcher detects a pattern in the strides it uses the stride value to prefetch what it assumes to
 be data that the processor needs in the near future.
