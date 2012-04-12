@@ -3,6 +3,12 @@ range from the very simple sequential ones, that simply fetches the address afte
 to more complex ones that tries to find patterns and use dynamically gathered statistics to guide
 them \cite{prefetch_range}.
 
+\subsection{Reference Prediction Tables}
+Reference Prediction Tables (RPT) is a prefetching technique which uses a large table to store information indexed by the program counter of the load. It calculates the delta for each miss, but the prefetching is only done after a certain amount of misses with the delta has occured.
+
+\subsection{Program Counter/Delta Correlation Prefetching}
+Program Counter/Delta Correlation Prefetching (PC/DC) is a prefetching method using a Global History Buffer (GHB). It uses buffered delta calculations to search for stride patterns. If a pattern is found, it is used to start prefetching.
+
 \subsection{Delta Correlation Prediction Tables} 
 Delta Correlation Prediction Tables (DCPT) combines RPT (Reference Prediction Tables) and PC/DC
 (Program Counter/Delta Correlation Prefetching) \cite{dcpt}. A large table is indexed by the program
