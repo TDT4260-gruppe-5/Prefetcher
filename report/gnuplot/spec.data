@@ -1,0 +1,13 @@
+"graph" "No prefetcher" "m3-6si"
+"ammp" 1 1.607
+"applu" 1 1.085
+"apsi" 1 1.048
+"art110" 1 1.060
+"art470" 1 1.060
+"bzip2 graphic" 1 1.135
+"bzip2 program" 1 1.060
+"bzip2 source" 1 1.017
+"galgel" 1 1.093
+"swim" 1 1.032
+"twolf" 1 0.986
+"wupwise" 1 1.247
