@@ -173,14 +173,15 @@ Pseudocode for the algorithm used can be found in Algorithm~\ref{alg:stride}.
 As we can see there are a few constants in the algorithm that can be
 tuned. These are
 
-\begin{tabular}{l p{4.5cm}}
-	\bfseries THRESHOLD\subscript{stride} & Determines when there is a match.
-	For perfect matching this should be equal to the pattern size\\
-	\bfseries AGGR\subscript{stride} & The aggresiveness determines how far
+~
+\begin{itemize}
+	\item \textbf{ THRESHOLD\subscript{stride}} \\ Determines when there is a match.
+	For perfect matching this should be equal to the pattern size \\
+	\item \textbf{ AGGR\subscript{stride}} \\ The aggresiveness determines how far
 	ahead we should prefetch \\
-	\bfseries THRESHOLD\subscript{mcs} & \\
-	\bfseries AGGR\subscript{mcs} &  Same as the stride equivalent \\
-\end{tabular}
+	\item \textbf{ THRESHOLD\subscript{mcs}} \\
+	\item \textbf{ AGGR\subscript{mcs}} \\  Same as the stride equivalent \\
+\end{itemize}
 
 It is important to note that these ``constants'' are actually C macros in our
 source code, so they could depend on any variables in scope on the location
