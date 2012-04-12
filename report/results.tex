@@ -29,7 +29,11 @@ Fig.~\ref{fig:table_size_chart} shows the speedup with different table sizes.
 The final solution was selected after thorough testing and tweaking of the
 prefetcher. The different results from the tests can be seen in
 Fig.~\ref{fig:prefetcher_tweaks}. Each line represents different values for the
-threshold, and the x-axis shows the values for the count variable.
+threshold, and the x-axis shows the values for the count variable. From the
+figure we can clearly see which parameters provides the best speedup. The
+figure also showed the line for threshold 4 rising at the end of the chart,
+which is the reason for the additional data point aquired by running a single
+extra test.
 
 \begin{figure}
 	\input{gnuplot/mcs}
