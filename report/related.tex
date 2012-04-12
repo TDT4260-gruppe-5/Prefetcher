@@ -4,10 +4,14 @@ to more complex ones that tries to find patterns and use dynamically gathered st
 them \cite{prefetch_range}.
 
 \subsection{Reference Prediction Tables}
-Reference Prediction Tables (RPT) is a prefetching technique which uses a large table to store information indexed by the program counter of the load. It calculates the delta for each miss, but the prefetching is only done after a certain amount of misses with the delta has occured.
+Reference Prediction Tables (RPT) TODO: REFERANSE is a prefetching technique which uses a large table to store
+information indexed by the program counter of the load. It calculates the delta for each miss, but
+the prefetching is only done after a certain amount of misses with the delta has occured.
 
 \subsection{Program Counter/Delta Correlation Prefetching}
-Program Counter/Delta Correlation Prefetching (PC/DC) is a prefetching method using a Global History Buffer (GHB). It uses buffered delta calculations to search for stride patterns. If a pattern is found, it is used to start prefetching.
+Program Counter/Delta Correlation Prefetching (PC/DC) TODO: REFERANSE is a prefetching method using a Global History
+Buffer (GHB). It uses buffered delta calculations to search for stride patterns. If a pattern is
+found, it is used to start prefetching.
 
 \subsection{Delta Correlation Prediction Tables} 
 Delta Correlation Prediction Tables combines RPT and PC/DC \cite{dcpt}. A large table is indexed by
@@ -37,10 +41,8 @@ the program counter and Fig.~\ref{fig:dcpt_entry} shows an entry in the table.
 The PC entry contains the program counter of the load instruction. Last address contains the load
 address. The delta fields contains the calculated delta values for this load instruction. These
 delta fields works as a circular buffer, where the delta pointer field points to the head of the
-buffer. Last prefetch stores the last prefetch address.
+buffer. Last prefetch stores the last prefetch address. 
 
-
-
-
-
-
+When a new delta is calculated, it is stored in the circular buffer and the prefetcher goes through
+the buffer to search for match for the two newest calculated deltas. When a match is found the
+prefetch candidates are calculated by
