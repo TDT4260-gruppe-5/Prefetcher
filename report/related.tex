@@ -1,16 +1,14 @@
-A lot of work has been done in this field, resulting in many different
-prefetching heuristics. They range from the very simple sequential ones, that
-simply fetches the address after the current one, to more complex ones that
-tries to find patterns and use dynamically gathered statistics to guide them\cite{prefetch_range}.
+A lot of work has been done in this field, resulting in many different prefetching heuristics. They
+range from the very simple sequential ones, that simply fetches the address after the current one,
+to more complex ones that tries to find patterns and use dynamically gathered statistics to guide
+them \cite{prefetch_range}.
 
-An important subclass of prefetchers is stride prefetchers. These try to find a
-pattern in the difference between consecutive memory addresses (called a
-stride). If a pattern of strides is found it can be used to prefetch the next
-address that will be needed. Our prefetcher is a stride prefetcher.
+\subsection{Delta Correlation Prediction Tables} 
+Delta Correlation Prediction Tables (DCPT) combines RPT (Reference Prediction Tables) and PC/DC
+(Program Counter/Delta Correlation Prefetching) \cite{dcpt}. A large table is indexed by the program
+counter and Fig~\ref{fig:dcpt_entry} shows an entry in the table.
 
 \subsection{}
 
 
-\subsection{DCPT}
-Delta Correlation Prediction Tables
-\cite{dcpt}
+
