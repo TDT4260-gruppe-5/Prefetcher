@@ -5,19 +5,19 @@ As you can see from Fig.~\ref{fig:table_size_chart}, the performance stopped inc
 The final solution was selected after thorough testing and tweaking of the prefetcher. The different results form the tests can be seen in Fig.~\ref{fig:prefetcher_tweaks}. Each line represents different values for the threshold, and the x-axis shows the values for the count variable.
 
 \begin{figure}
-	\centering \includegraphics[scale=0.7]{img/prefetcher_chart.pdf}
+	\input{gnuplot/spec}
 	\caption{Prefetcher speedup chart}
 	\label{fig:prefetcher_speedup}
 \end{figure}
 
 \begin{figure}
-	\centering \includegraphics[scale=0.7]{img/table_size_chart.pdf}
+	\input{gnuplot/tablesize}
 	\caption{Table size speedup chart}
 	\label{fig:table_size_chart}
 \end{figure}
 
 \begin{figure}
-	\centering \includegraphics[scale=0.5]{img/prefetcher_tweaks.pdf}
+	\input{gnuplot/mcs}
 	\caption{Prefetcher tweaks}
 	\label{fig:prefetcher_tweaks}
 \end{figure}
