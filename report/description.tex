@@ -1,17 +1,53 @@
-As mentioned above our prefetcher is a stride prefetcher. It tries to detect a
-pattern in the access history, and use this pattern to predict future
+As mentioned above our prefetcher is a stride prefetcher. It tries to detect a 
+pattern in the access history, and use this pattern to predict future 
 references. Patterns could be detected on a global or a local (per PC) basis.
-After reviewing statistics gathered from SPEC CPU2000 benchmarks we decided to
+After reviewing statistics gathered from SPEC CPU2000 benchmarks we decided to 
 focus on local patterns. This was because the global access stream had little 
 additional unique information that could not already be extracted from the 
-local streams. In most benchmarks the memory accesses are done by a few 
-instructions that operate in a very predictable fashion.
+local streams without using a lot of additional resources. In most benchmarks 
+the memory accesses are done by a few instructions that operate in a very 
+predictable fashion.
 
 \subsection{Table}
+
+\begin{figure}
+	\begin{tikzpicture}
+		\draw [->] (1,7.5) -- (2, 7.5);
+		\draw (1.5, 7.8) node {PC};
+		\foreach \x in {6,...,8}
+			\draw (2, \x) rectangle (3, \x + 1);
+
+		\draw [dotted] (2, 5.75) -- (2, 5.25);
+		\draw [dotted] (3, 5.75) -- (3, 5.25);
+		\draw (2, 5) -- (2, 5.25);
+		\draw (2, 6) -- (2, 5.75);
+		\draw (3, 5) -- (3, 5.25);
+		\draw (3, 6) -- (3, 5.75);
+		\draw (2, 4) rectangle  (3, 5);
+
+		\foreach \x in {0,2}
+			\draw (\x * 1.5 + 4, 6.75) rectangle  (\x * 1.5 + 5.5, 8.25);
+
+		\draw [dashed] (3, 8) -- (4, 8.25);
+		\draw [dashed] (3, 7) -- (4, 6.75);
+
+		\draw [dotted] (5.5, 6.75) rectangle (7, 8.25);
+		\draw (5.5, 6.75) -- (5.75, 6.75);
+		\draw (6.75, 6.75) -- (7, 6.75);
+		\draw (5.5, 8.25) -- (5.75, 8.25);
+		\draw (6.75, 8.25) -- (7, 8.25);
+
+		\draw (4.75, 7.5) node {$a_0$};
+		\draw (7.75, 7.5) node {$a_{2n}$};
+	\end{tikzpicture}
+	\caption{Access History Table}
+	\label{fig:table}
+\end{figure}
 
 To keep track of the previous memory accesses of a program counter we use a
 table. Each table entry contains a list of the last memory accesses
 and misses by the program counter that maps to this entry.
+A graphical representation of the table can be seen in Fig.~\ref{fig:table}.
 The exact number of accesses to store in each entry can be tweaked.
 More addresses per entry allows larger patterns to be detected,
 but reduces the number of entries using the same amount of memory.
@@ -30,15 +66,14 @@ table entries.
 
 \subsection{Pattern Matching}
 
-The patterns our prefetcher tries to detect are on the form in
-Table~\ref{table:pattern}.
-We see the addresses, and the relative and absolute strides.
+When the table begins to fill we are able to find patterns in the memory accesses.
+To find these patterns we calculate relative and absolute strides.
 The relative stride is the difference between two consecutive
-addresses.
-Absolute strides are calculated by choosing a pattern size n,
+addresses. Absolute strides are calculated by choosing a pattern size n,
 and then computing the difference between the address at position
 $n$ to every address before $n$, and then doing the same for the address
 at position $2n$.
+
 That is,
 \[
 	s_i = \begin{cases}
@@ -56,52 +91,15 @@ perfect match is found if
 
 It is also possible to find a partial match. We then simply relax the
 requirement in equation \eqref{eq:match} that all strides have to match, to
-that at least some percentage has to match. Pseudocode for the stride
-prefetching can be found in Algorithm~\ref{alg:stride}.
+that at least some percentage has to match.
 
-As we can see there are a few constants in the algorithm that can be
-tuned. These are
-
-\begin{description}
-	\item{$THRESHOLD_{stride}$} Determines when there is a match. For perfect
-	matching this should be equal to $i$
-	\item{$AGGR_{stride}$} The aggresiveness determines how far ahead we should
-	prefetch
-	\item{$THRESHOLD_{mcs}$}
-	\item{$AGGR_{mcs}$} Same as the stride equivalent
-\end{description}
+An example of a perfect match can be seen in Table~\ref{table:pattern}.
 
 %Partial matching is the reason for using absolute strides instead of the
 %more intuitive relative stride. If we have a partial match, and use relative
 %strides, there is no easy way to prefetch a
 
-\begin{algorithm}
-	\caption{Stride Prefetching with Pattern Size $n$}
-	\label{alg:stride}
-	\begin{algorithmic}
-		\For{$i = n \to 1$}
-			\State $hits \gets 0$
-			\State $hit_j \gets \bot \quad \text{for } \, 1 \leq j \leq i$
-			\For{$j = 1 \to i$}
-				\If{$s_j \equiv s_{i + j}$}
-					\State $hits \gets hits + 1$
-					\State $hit_j \gets \top$
-				\EndIf
-			\EndFor
-			\If{$hits \geq THRESHOLD_{stride}$}
-				\For{$j = 1 \to AGGR_{stride}$}
-				\State $k \gets i - 1 - mod(i,j)$
-				\If{$hit_k$}
-					\State prefetch($a_0 + s_k \cdot (\lfloor \frac{j}{i} \rfloor + 1)$)
-					\EndIf
-				\EndFor
-				\State \bfseries return
-			\EndIf
-		\EndFor
-	\end{algorithmic}
-\end{algorithm}
-
-\begin{table}
+\begin{table}[htb]
 	\caption{Example of pattern with n=4}
 	\label{table:pattern}
 	\centering
@@ -136,7 +134,7 @@ tuned. These are
 	\end{tabular}
 \end{table}
 
-k\subsection{Most Common Stride}
+\subsection{Most Common Stride}
 
 In addition to the pattern matching above, we also implemented most common stride
 prefetching. This was added as a fallback measure if the pattern matching code
@@ -145,7 +143,6 @@ It looks for the most common stride, and if the number
 is more than some number
 of these strides it will use this stride to prefetch a
 set number of cache lines.
-The algorithm is explained using pseudocode in Algorithm~\ref{alg:mcs}.
 Table~\ref{table:mcs} shows a history of accesses
 where the most common stride is 64.
 \begin{table}
@@ -169,30 +166,95 @@ where the most common stride is 64.
 	\end{tabular}
 \end{table}
 
+\subsection{Algorithm}
+
+Pseudocode for the algorithm used can be found in Algorithm~\ref{alg:stride}.
+
+As we can see there are a few constants in the algorithm that can be
+tuned. These are
+
+\begin{tabular}{l p{4.5cm}}
+	\bfseries THRESHOLD\subscript{stride} & Determines when there is a match.
+	For perfect matching this should be equal to the pattern size\\
+	\bfseries AGGR\subscript{stride} & The aggresiveness determines how far
+	ahead we should prefetch \\
+	\bfseries THRESHOLD\subscript{mcs} & \\
+	\bfseries AGGR\subscript{mcs} &  Same as the stride equivalent \\
+\end{tabular}
+
+It is important to note that these ``constants'' are actually C macros in our
+source code, so they could depend on any variables in scope on the location
+they are used.
+
+\algnotext{EndIf}
+\algnotext{EndFor}
+\algnotext{EndFunction}
+
 \begin{algorithm}
-	\caption{Most Common Stride}
-	\label{alg:mcs}
+	\caption{The prefetching algorithm}
+	\label{alg:stride}
 	\begin{algorithmic}
-		\State $mcs \gets s_0$
-		\State $count \gets 0$
-
-		\For{$i = 1 \to 11$}
-			\State $c \gets 0$
-			\State $m \gets s_i$
-			\For{$j = i \to 11$}
-				\If{$s_i \equiv m$} \State $c \gets c + 1$ \EndIf
-			\EndFor
-
-			\If{$c > count$}
-				\State $count \gets c$
-				\State $mcs \gets m$
-			\EndIf
-		\EndFor
-		\\
-		\If{$count \geq THRESHOLD_{mcs}$}
-			\For{$i = 1 \to AGGR_{mcs}$}
-				\State prefetch ($a_0 + mcs \cdot i$)
-			\EndFor
+		\Function{prefetch}{$a_0$, $a_1$, \dots, $a_{2n}$}
+		\If{$\neg$ \textsc{stride\_prefetch}($a_0$, $a_1$, \dots, $a_{2n}$)}
+			\State \textsc{mcs\_prefetch}($a_0$, $a_1$, \dots, $a_{2n}$)
 		\EndIf
+		\EndFunction
+		\\
+		\Function{stride\_prefetching}{$a_0$, $a_1$, \dots, $a_{2n}$}
+			\For{$i = n \to 1$}
+				\State $hits \gets 0$
+%				\State $hit_j \gets$ \textnormal{false} $\quad \text{for } \, 0 \leq j \leq i - 1$
+				\For{$j = 0 \to i - 1$}
+					\State $hit_j \gets$ \textnormal{false}
+					\State $s_j \gets a_j - a_i$
+					\State $s_{i + j} \gets a_{i + j} - a_{2i}$
+				\EndFor
+				\For{$j = 0 \to i - 1$}
+					\If{$s_j \equiv s_{i + j}$}
+						\State $hits \gets hits + 1$
+						\State $hit_j \gets$ \textnormal{true}
+					\EndIf
+				\EndFor
+				\If{$hits \geq$ THRESHOLD\subscript{stride}}
+					\For{$j = 0 \to$ AGGR\subscript{stride}}
+						\State $k \gets i - 1 - mod(i,j)$
+						\If{$hit_k$}
+							\State \textsc{prefetch}($a_0 + s_k \cdot (\lfloor \frac{j}{i} \rfloor + 1)$)
+						\EndIf
+					\EndFor
+					\State {\bfseries return} \textnormal{true}
+				\EndIf
+			\EndFor
+
+			\Return \textnormal{false}
+		\EndFunction
+		\\
+		\Function{mcs\_prefetching}{$a_0$, $a_1$, \dots, $a_{2n}$}
+			\State $mcs \gets s_0$
+			\State $count \gets 0$
+
+			\For{$i = 0 \to 2n$}
+				\State $s_i \gets a_i - a_{i + 1}$
+			\EndFor
+
+			\For{$i = 0 \to 2n$}
+				\State $c \gets 0$
+				\State $m \gets s_i$
+				\For{$j = i \to 2n$}
+					\If{$s_i \equiv m$} \State $c \gets c + 1$ \EndIf
+				\EndFor
+
+				\If{$c > count$}
+					\State $count \gets c$
+					\State $mcs \gets m$
+				\EndIf
+			\EndFor
+			\\
+			\If{$count \geq$ THRESHOLD\subscript{mcs}}
+				\For{$i = 1 \to$ AGGR\subscript{mcs}}
+				\State \textsc{prefetch}($a_0 + mcs \cdot i$)
+				\EndFor
+			\EndIf
+		\EndFunction
 	\end{algorithmic}
 \end{algorithm}
