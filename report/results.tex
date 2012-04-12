@@ -1,18 +1,8 @@
-Fig.~\ref{fig:prefetcher_speedup} shows our prefetcher's speedup compared to
-running the test without a prefetcher. As you can see from the chart there is
-an all-round good speedup, in addition to certain test which have higher
-speedup.
-
-As you can see from Fig.~\ref{fig:table_size_chart}, the performance stopped
-increasing after a table size of 256. This we believe is caused by instruction
-conflicts in the table. When the table reaches a certain size, most
-instructions get their own place in the table, and avoid being evicted by
-conflicting instructions.
-
-The final solution was selected after thorough testing and tweaking of the
-prefetcher. The different results from the tests can be seen in
-Fig.~\ref{fig:prefetcher_tweaks}. Each line represents different values for the
-threshold, and the x-axis shows the values for the count variable.
+Fig.~\ref{fig:prefetcher_speedup} shows the speedup of our best prefetcher
+compared to running the test without a prefetcher. As you can see from the
+chart there is an all-round good speedup, in addition to certain test which
+have higher speedup. Only the \emph{twolf} benchmark runs slower with the
+prefetcher.
 
 \begin{figure}
 	\input{gnuplot/spec}
@@ -20,14 +10,43 @@ threshold, and the x-axis shows the values for the count variable.
 	\label{fig:prefetcher_speedup}
 \end{figure}
 
+\subsection{Table Parameters}
+We tested with different values for table size, pattern size and bits per address.
+Fig.~\ref{fig:table_size_chart} shows the speedup with different table sizes.
+Fig.~\ref{fig:pattern_size} shows the speedup with different pattern sizes.
+%As you can see from Fig.~\ref{fig:table_size_chart}, the performance stopped
+%increasing after a table size of 256. This we believe is caused by instruction
+%conflicts in the table. When the table reaches a certain size, most
+%instructions get their own place in the table, and avoid being evicted by
+%conflicting instructions.
+
 \begin{figure}
 	\input{gnuplot/tablesize}
-	\caption{Table size speedup chart}
+	\caption{Speedup with different table sizes}
 	\label{fig:table_size_chart}
 \end{figure}
 
 \begin{figure}
+	\input{gnuplot/patternsize}
+	\caption{Speedup with different pattern sizes}
+	\label{fig:pattern_size}
+\end{figure}
+
+\subsection{Stride}
+
+\subsection{Most Common Stride Parameters}
+
+The final solution was selected after thorough testing and tweaking of the
+prefetcher. The different results from the tests can be seen in
+Fig.~\ref{fig:prefetcher_tweaks}. Each line represents different values for the
+threshold, and the x-axis shows the values for the count variable. From the
+figure we can clearly see which parameters provides the best speedup. The
+figure also showed the line for threshold 4 rising at the end of the chart,
+which is the reason for the additional data point aquired by running a single
+extra test.
+
+\begin{figure}
 	\input{gnuplot/mcs}
-	\caption{Prefetcher tweaks}
+	\caption{Most Common Stride Threshold and Aggressiveness}
 	\label{fig:prefetcher_tweaks}
 \end{figure}

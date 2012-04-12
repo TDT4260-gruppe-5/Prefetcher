@@ -54,8 +54,14 @@ but reduces the number of entries using the same amount of memory.
 Larger patterns might allow you to catch more, while more entries
 reduces the chance of collision.
 
+To save space we can store only the lower $k$ bits in every address. We can
+also avoid saving the lower 6 bits because the simulated computer uses 64 byte
+cachelines, therefore the lower 6 bits of addresses to blocks in the cache will
+always be 0. With $k=16$ we store only 10 bits and can correctly identify
+patterns as long as the biggest stride is less than $2^{16}$.
+
 Because the table size is much smaller
-than the number of possible program counters, several instructions could map to
+than the number of possible program counters, several instructions could use
 the same table entry. If this happened in a real program it could lead to less
 than optimal prefetching. With a sufficiently large table the chance of two
 instructions clashing would be negligible. In addition the table entry is found
@@ -173,14 +179,15 @@ Pseudocode for the algorithm used can be found in Algorithm~\ref{alg:stride}.
 As we can see there are a few constants in the algorithm that can be
 tuned. These are
 
-\begin{tabular}{l p{4.5cm}}
-	\bfseries THRESHOLD\subscript{stride} & Determines when there is a match.
-	For perfect matching this should be equal to the pattern size\\
-	\bfseries AGGR\subscript{stride} & The aggresiveness determines how far
+~
+\begin{itemize}
+	\item \textbf{ THRESHOLD\subscript{stride}} \\ Determines when there is a match.
+	For perfect matching this should be equal to the pattern size \\
+	\item \textbf{ AGGR\subscript{stride}} \\ The aggresiveness determines how far
 	ahead we should prefetch \\
-	\bfseries THRESHOLD\subscript{mcs} & \\
-	\bfseries AGGR\subscript{mcs} &  Same as the stride equivalent \\
-\end{tabular}
+	\item \textbf{ THRESHOLD\subscript{mcs}} \\
+	\item \textbf{ AGGR\subscript{mcs}} \\  Same as the stride equivalent \\
+\end{itemize}
 
 It is important to note that these ``constants'' are actually C macros in our
 source code, so they could depend on any variables in scope on the location
