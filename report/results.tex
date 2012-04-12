@@ -11,7 +11,9 @@ prefetcher.
 \end{figure}
 
 \subsection{Table Parameters}
+We tested with different values for table size, pattern size and bits per address.
 Fig.~\ref{fig:table_size_chart} shows the speedup with different table sizes.
+Fig.~\ref{fig:pattern_size} shows the speedup with different pattern sizes.
 %As you can see from Fig.~\ref{fig:table_size_chart}, the performance stopped
 %increasing after a table size of 256. This we believe is caused by instruction
 %conflicts in the table. When the table reaches a certain size, most
@@ -23,6 +25,14 @@ Fig.~\ref{fig:table_size_chart} shows the speedup with different table sizes.
 	\caption{Speedup with different table sizes}
 	\label{fig:table_size_chart}
 \end{figure}
+
+\begin{figure}
+	\input{gnuplot/patternsize}
+	\caption{Speedup with different pattern sizes}
+	\label{fig:pattern_size}
+\end{figure}
+
+\subsection{Stride}
 
 \subsection{Most Common Stride Parameters}
 
