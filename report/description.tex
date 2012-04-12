@@ -10,15 +10,23 @@ that operate in a very predictable fashion.
 \subsection{Table}
 
 To keep track of the previous memory accesses of a program counter we use a
-table. Each table entry contains a list of the ten last memory accesses by the
-program counter that maps to this entry. Because the table size is much smaller
+table. Each table entry contains a list of the last memory accesses
+and misses by the program counter that maps to this entry.
+The exact number of accesses to store in each entry can be tweaked.
+More addresses per entry allows larger patterns to be detected,
+but reduces the number of entries using the same amount of memory.
+Larger patterns might allow you to catch more, while more entries
+reduces the chance of collision.
+
+Because the table size is much smaller
 than the number of possible program counters, several instructions could map to
 the same table entry. If this happened in a real program it could lead to less
 than optimal prefetching. With a sufficiently large table the chance of two
 instructions clashing would be negligible. In addition the table entry is found
 by taking the program counter modulo the table size. This ensures that
 instructions that is less than table size apart will map to different table
-entries.
+entries, meaning all instructions in a small loop is likely to map to different
+table entries.
 
 \subsection{Pattern Matching}
 
@@ -27,15 +35,15 @@ Table~\ref{table:pattern}.
 We see the addresses, and the relative and absolute strides.
 The relative stride is the difference between two consecutive
 addresses.
-Absolute strides are a calculated by choosing a pattern size n,
+Absolute strides are calculated by choosing a pattern size n,
 and then computing the difference between the address at position
-n to every address before $n$, and then doing the same for the address
+$n$ to every address before $n$, and then doing the same for the address
 at position $2n$.
 That is,
 \[
 	s_i = \begin{cases}
-		a_i - a_n,    & \text{if } i \in \{0 \dots n -1\}\\
-		a_i - a_{2n}, & \text{if } i \in \{n \dots 2n - 1\}
+		a_i - a_n,    & \text{if } i  < n \\%\in \{0 \dots n -1\}\\
+		a_i - a_{2n}, & \text{if } i \geq n % \{n \dots 2n - 1\}
 	\end{cases}
 \]
 where $s_i$~is the $i$th absolute stride, and $a_i$~is the address at position
@@ -48,7 +56,50 @@ perfect match is found if
 
 It is also possible to find a partial match. We then simply relax the
 requirement in equation \eqref{eq:match} that all strides have to match, to
-that at least some percentage has to match.
+that at least some percentage has to match. Pseudocode for the stride
+prefetching can be found in Algorithm~\ref{alg:stride}.
+
+As we can see there are a few constants in the algorithm that can be
+tuned. These are
+
+\begin{description}
+	\item{$THRESHOLD_{stride}$} Determines when there is a match. For perfect
+	matching this should be equal to $i$
+	\item{$AGGR_{stride}$} The aggresiveness determines how far ahead we should
+	prefetch
+	\item{$THRESHOLD_{mcs}$}
+	\item{$AGGR_{mcs}$} Same as the stride equivalent
+\end{description}
+
+%Partial matching is the reason for using absolute strides instead of the
+%more intuitive relative stride. If we have a partial match, and use relative
+%strides, there is no easy way to prefetch a
+
+\begin{algorithm}
+	\caption{Stride Prefetching with Pattern Size $n$}
+	\label{alg:stride}
+	\begin{algorithmic}
+		\For{$i = n \to 1$}
+			\State $hits \gets 0$
+			\State $hit_j \gets \bot \quad \text{for } \, 1 \leq j \leq i$
+			\For{$j = 1 \to i$}
+				\If{$s_j \equiv s_{i + j}$}
+					\State $hits \gets hits + 1$
+					\State $hit_j \gets \top$
+				\EndIf
+			\EndFor
+			\If{$hits \geq THRESHOLD_{stride}$}
+				\For{$j = 1 \to AGGR_{stride}$}
+				\State $k \gets i - 1 - mod(i,j)$
+				\If{$hit_k$}
+					\State prefetch($a_0 + s_k \cdot (\lfloor \frac{j}{i} \rfloor + 1)$)
+					\EndIf
+				\EndFor
+				\State \bfseries return
+			\EndIf
+		\EndFor
+	\end{algorithmic}
+\end{algorithm}
 
 \begin{table}
 	\caption{Example of pattern with n=4}
@@ -85,13 +136,17 @@ that at least some percentage has to match.
 	\end{tabular}
 \end{table}
 
-\subsection{Most Common Stride}
+k\subsection{Most Common Stride}
 
 In addition to the pattern matching above, we also implemented most common stride
 prefetching. This was added as a fallback measure if the pattern matching code
-was unable to find a pattern. It looks for the most common stride, and if there
-is more than some number of these strides it will use this stride to prefetch a
-set number of cache lines. Table~\ref{table:mcs} shows a history of accesses
+was unable to find a pattern.
+It looks for the most common stride, and if the number
+is more than some number
+of these strides it will use this stride to prefetch a
+set number of cache lines.
+The algorithm is explained using pseudocode in Algorithm~\ref{alg:mcs}.
+Table~\ref{table:mcs} shows a history of accesses
 where the most common stride is 64.
 \begin{table}
 	\caption{Example of Most Common Stride}
@@ -113,3 +168,31 @@ where the most common stride is 64.
 		386 & \\
 	\end{tabular}
 \end{table}
+
+\begin{algorithm}
+	\caption{Most Common Stride}
+	\label{alg:mcs}
+	\begin{algorithmic}
+		\State $mcs \gets s_0$
+		\State $count \gets 0$
+
+		\For{$i = 1 \to 11$}
+			\State $c \gets 0$
+			\State $m \gets s_i$
+			\For{$j = i \to 11$}
+				\If{$s_i \equiv m$} \State $c \gets c + 1$ \EndIf
+			\EndFor
+
+			\If{$c > count$}
+				\State $count \gets c$
+				\State $mcs \gets m$
+			\EndIf
+		\EndFor
+		\\
+		\If{$count \geq THRESHOLD_{mcs}$}
+			\For{$i = 1 \to AGGR_{mcs}$}
+				\State prefetch ($a_0 + mcs \cdot i$)
+			\EndFor
+		\EndIf
+	\end{algorithmic}
+\end{algorithm}
