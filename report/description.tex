@@ -54,8 +54,14 @@ but reduces the number of entries using the same amount of memory.
 Larger patterns might allow you to catch more, while more entries
 reduces the chance of collision.
 
+To save space we can store only the lower $k$ bits in every address. We can
+also avoid saving the lower 6 bits because the simulated computer uses 64 byte
+cachelines, therefore the lower 6 bits of addresses to blocks in the cache will
+always be 0. With $k=16$ we store only 10 bits and can correctly identify
+patterns as long as the biggest stride is less than $2^{16}$.
+
 Because the table size is much smaller
-than the number of possible program counters, several instructions could map to
+than the number of possible program counters, several instructions could use
 the same table entry. If this happened in a real program it could lead to less
 than optimal prefetching. With a sufficiently large table the chance of two
 instructions clashing would be negligible. In addition the table entry is found
