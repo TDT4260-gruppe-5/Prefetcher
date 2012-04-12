@@ -1,11 +1,12 @@
-As mentioned above our prefetcher is a stride prefetcher. It tries to detect a
-pattern in the access history, and use this pattern to predict future
+As mentioned above our prefetcher is a stride prefetcher. It tries to detect a 
+pattern in the access history, and use this pattern to predict future 
 references. Patterns could be detected on a global or a local (per PC) basis.
-After reviewing statistics gathered from SPEC CPU2000 benchmarks we decided to
+After reviewing statistics gathered from SPEC CPU2000 benchmarks we decided to 
 focus on local patterns. This was because the global access stream had little 
 additional unique information that could not already be extracted from the 
-local streams. In most benchmarks the memory accesses are done by a few 
-instructions that operate in a very predictable fashion.
+local streams without using a lot of additional resources. In most benchmarks 
+the memory accesses are done by a few instructions that operate in a very 
+predictable fashion.
 
 \subsection{Table}
 
@@ -30,15 +31,19 @@ table entries.
 
 \subsection{Pattern Matching}
 
-The patterns our prefetcher tries to detect are on the form in
-Table~\ref{table:pattern}.
-We see the addresses, and the relative and absolute strides.
+When the table begins to fill we are able to find patterns in the memory accesses.
+To find these patterns we calculate relative and absolute strides.
 The relative stride is the difference between two consecutive
-addresses.
-Absolute strides are calculated by choosing a pattern size n,
+addresses. Absolute strides are calculated by choosing a pattern size n,
 and then computing the difference between the address at position
 $n$ to every address before $n$, and then doing the same for the address
 at position $2n$.
+
+The patterns our prefetcher tries to detect are on the form in
+Table~\ref{table:pattern}.
+We see the addresses, and the relative and absolute strides.
+
+
 That is,
 \[
 	s_i = \begin{cases}
