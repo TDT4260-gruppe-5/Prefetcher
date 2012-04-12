@@ -10,9 +10,44 @@ predictable fashion.
 
 \subsection{Table}
 
+\begin{figure}
+	\begin{tikzpicture}
+		\draw [->] (1,7.5) -- (2, 7.5);
+		\draw (1.5, 7.8) node {PC};
+		\foreach \x in {6,...,8}
+			\draw (2, \x) rectangle (3, \x + 1);
+
+		\draw [dotted] (2, 5.75) -- (2, 5.25);
+		\draw [dotted] (3, 5.75) -- (3, 5.25);
+		\draw (2, 5) -- (2, 5.25);
+		\draw (2, 6) -- (2, 5.75);
+		\draw (3, 5) -- (3, 5.25);
+		\draw (3, 6) -- (3, 5.75);
+		\draw (2, 4) rectangle  (3, 5);
+
+		\foreach \x in {0,2}
+			\draw (\x * 1.5 + 4, 6.75) rectangle  (\x * 1.5 + 5.5, 8.25);
+
+		\draw [dashed] (3, 8) -- (4, 8.25);
+		\draw [dashed] (3, 7) -- (4, 6.75);
+
+		\draw [dotted] (5.5, 6.75) rectangle (7, 8.25);
+		\draw (5.5, 6.75) -- (5.75, 6.75);
+		\draw (6.75, 6.75) -- (7, 6.75);
+		\draw (5.5, 8.25) -- (5.75, 8.25);
+		\draw (6.75, 8.25) -- (7, 8.25);
+
+		\draw (4.75, 7.5) node {$a_0$};
+		\draw (7.75, 7.5) node {$a_{2n}$};
+	\end{tikzpicture}
+	\caption{Access History Table}
+	\label{fig:table}
+\end{figure}
+
 To keep track of the previous memory accesses of a program counter we use a
 table. Each table entry contains a list of the last memory accesses
 and misses by the program counter that maps to this entry.
+A graphical representation of the table can be seen in Fig.~\ref{fig:table}.
 The exact number of accesses to store in each entry can be tweaked.
 More addresses per entry allows larger patterns to be detected,
 but reduces the number of entries using the same amount of memory.
