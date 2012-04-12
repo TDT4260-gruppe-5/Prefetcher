@@ -61,48 +61,134 @@ perfect match is found if
 
 It is also possible to find a partial match. We then simply relax the
 requirement in equation \eqref{eq:match} that all strides have to match, to
-that at least some percentage has to match. Pseudocode for the stride
-prefetching can be found in Algorithm~\ref{alg:stride}.
-
-As we can see there are a few constants in the algorithm that can be
-tuned. These are
-
-\begin{description}
-	\item{$THRESHOLD_{stride}$} Determines when there is a match. For perfect
-	matching this should be equal to $i$
-	\item{$AGGR_{stride}$} The aggresiveness determines how far ahead we should
-	prefetch
-	\item{$THRESHOLD_{mcs}$}
-	\item{$AGGR_{mcs}$} Same as the stride equivalent
-\end{description}
+that at least some percentage has to match.
 
 %Partial matching is the reason for using absolute strides instead of the
 %more intuitive relative stride. If we have a partial match, and use relative
 %strides, there is no easy way to prefetch a
 
+\subsection{Most Common Stride}
+
+In addition to the pattern matching above, we also implemented most common stride
+prefetching. This was added as a fallback measure if the pattern matching code
+was unable to find a pattern.
+It looks for the most common stride, and if the number
+is more than some number
+of these strides it will use this stride to prefetch a
+set number of cache lines.
+Table~\ref{table:mcs} shows a history of accesses
+where the most common stride is 64.
+\begin{table}
+	\caption{Example of Most Common Stride}
+	\centering
+	\label{table:mcs}
+	\begin{tabular}{c|c}
+		\bfseries Address & \bfseries Stride (Relative)\\
+		\hline
+		0   & \\
+		    & 64\\
+		64  & \\
+		    & 64\\
+		128 & \\
+		    & 128\\
+		256 & \\
+		    & 64\\
+		320 & \\
+		    & 64\\
+		386 & \\
+	\end{tabular}
+\end{table}
+
+\subsection{Algorithm}
+
+Pseudocode for the algorithm used can be found in Algorithm~\ref{alg:stride}.
+
+As we can see there are a few constants in the algorithm that can be
+tuned. These are
+
+\begin{tabular}{l p{4.5cm}}
+	\bfseries THRESHOLD\subscript{stride} & Determines when there is a match.
+	For perfect matching this should be equal to the pattern size\\
+	\bfseries AGGR\subscript{stride} & The aggresiveness determines how far
+	ahead we should prefetch \\
+	\bfseries THRESHOLD\subscript{mcs} & \\
+	\bfseries AGGR\subscript{mcs} &  Same as the stride equivalent \\
+\end{tabular}
+
+It is important to note that these ``constants'' are actually C macros in our
+source code, so they could depend on any variables in scope on the location
+they are used.
+
+\algnotext{EndIf}
+\algnotext{EndFor}
+\algnotext{EndFunction}
+
 \begin{algorithm}
-	\caption{Stride Prefetching with Pattern Size $n$}
+	\caption{The prefetching algorithm}
 	\label{alg:stride}
 	\begin{algorithmic}
-		\For{$i = n \to 1$}
-			\State $hits \gets 0$
-			\State $hit_j \gets \bot \quad \text{for } \, 1 \leq j \leq i$
-			\For{$j = 1 \to i$}
-				\If{$s_j \equiv s_{i + j}$}
-					\State $hits \gets hits + 1$
-					\State $hit_j \gets \top$
-				\EndIf
-			\EndFor
-			\If{$hits \geq THRESHOLD_{stride}$}
-				\For{$j = 1 \to AGGR_{stride}$}
-				\State $k \gets i - 1 - mod(i,j)$
-				\If{$hit_k$}
-					\State prefetch($a_0 + s_k \cdot (\lfloor \frac{j}{i} \rfloor + 1)$)
+		\Function{prefetch}{$a_0$, $a_1$, \dots, $a_{2n}$}
+		\If{$\neg$ \textsc{stride\_prefetch}($a_0$, $a_1$, \dots, $a_{2n}$)}
+			\State \textsc{mcs\_prefetch}($a_0$, $a_1$, \dots, $a_{2n}$)
+		\EndIf
+		\EndFunction
+		\\
+		\Function{stride\_prefetching}{$a_0$, $a_1$, \dots, $a_{2n}$}
+			\For{$i = n \to 1$}
+				\State $hits \gets 0$
+%				\State $hit_j \gets$ \textnormal{false} $\quad \text{for } \, 0 \leq j \leq i - 1$
+				\For{$j = 0 \to i - 1$}
+					\State $hit_j \gets$ \textnormal{false}
+					\State $s_j \gets a_j - a_i$
+					\State $s_{i + j} \gets a_{i + j} - a_{2i}$
+				\EndFor
+				\For{$j = 0 \to i - 1$}
+					\If{$s_j \equiv s_{i + j}$}
+						\State $hits \gets hits + 1$
+						\State $hit_j \gets$ \textnormal{true}
 					\EndIf
 				\EndFor
-				\State \bfseries return
+				\If{$hits \geq$ THRESHOLD\subscript{stride}}
+					\For{$j = 0 \to$ AGGR\subscript{stride}}
+						\State $k \gets i - 1 - mod(i,j)$
+						\If{$hit_k$}
+							\State \textsc{prefetch}($a_0 + s_k \cdot (\lfloor \frac{j}{i} \rfloor + 1)$)
+						\EndIf
+					\EndFor
+					\State {\bfseries return} \textnormal{true}
+				\EndIf
+			\EndFor
+
+			\Return \textnormal{false}
+		\EndFunction
+		\\
+		\Function{mcs\_prefetching}{$a_0$, $a_1$, \dots, $a_{2n}$}
+			\State $mcs \gets s_0$
+			\State $count \gets 0$
+
+			\For{$i = 0 \to 2n$}
+				\State $s_i \gets a_i - a_{i + 1}$
+			\EndFor
+
+			\For{$i = 0 \to 2n$}
+				\State $c \gets 0$
+				\State $m \gets s_i$
+				\For{$j = i \to 2n$}
+					\If{$s_i \equiv m$} \State $c \gets c + 1$ \EndIf
+				\EndFor
+
+				\If{$c > count$}
+					\State $count \gets c$
+					\State $mcs \gets m$
+				\EndIf
+			\EndFor
+			\\
+			\If{$count \geq$ THRESHOLD\subscript{mcs}}
+				\For{$i = 1 \to$ AGGR\subscript{mcs}}
+				\State \textsc{prefetch}($a_0 + mcs \cdot i$)
+				\EndFor
 			\EndIf
-		\EndFor
+		\EndFunction
 	\end{algorithmic}
 \end{algorithm}
 
@@ -140,64 +226,3 @@ tuned. These are
 		8 & 0 & & \\
 	\end{tabular}
 \end{table}
-
-k\subsection{Most Common Stride}
-
-In addition to the pattern matching above, we also implemented most common stride
-prefetching. This was added as a fallback measure if the pattern matching code
-was unable to find a pattern.
-It looks for the most common stride, and if the number
-is more than some number
-of these strides it will use this stride to prefetch a
-set number of cache lines.
-The algorithm is explained using pseudocode in Algorithm~\ref{alg:mcs}.
-Table~\ref{table:mcs} shows a history of accesses
-where the most common stride is 64.
-\begin{table}
-	\caption{Example of Most Common Stride}
-	\centering
-	\label{table:mcs}
-	\begin{tabular}{c|c}
-		\bfseries Address & \bfseries Stride (Relative)\\
-		\hline
-		0   & \\
-		    & 64\\
-		64  & \\
-		    & 64\\
-		128 & \\
-		    & 128\\
-		256 & \\
-		    & 64\\
-		320 & \\
-		    & 64\\
-		386 & \\
-	\end{tabular}
-\end{table}
-
-\begin{algorithm}
-	\caption{Most Common Stride}
-	\label{alg:mcs}
-	\begin{algorithmic}
-		\State $mcs \gets s_0$
-		\State $count \gets 0$
-
-		\For{$i = 1 \to 11$}
-			\State $c \gets 0$
-			\State $m \gets s_i$
-			\For{$j = i \to 11$}
-				\If{$s_i \equiv m$} \State $c \gets c + 1$ \EndIf
-			\EndFor
-
-			\If{$c > count$}
-				\State $count \gets c$
-				\State $mcs \gets m$
-			\EndIf
-		\EndFor
-		\\
-		\If{$count \geq THRESHOLD_{mcs}$}
-			\For{$i = 1 \to AGGR_{mcs}$}
-				\State prefetch ($a_0 + mcs \cdot i$)
-			\EndFor
-		\EndIf
-	\end{algorithmic}
-\end{algorithm}
