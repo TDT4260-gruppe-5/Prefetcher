@@ -6,7 +6,8 @@ focus on local patterns. This was because the global access stream had little
 additional unique information that could not already be extracted from the 
 local streams without using a lot of additional resources. In most benchmarks 
 the memory accesses are done by a few instructions that operate in a very 
-predictable fashion.
+predictable fashion. The prefetcher is very similar to a DCPT, but we store just the 
+addresses instead of the delta values, and nothing else.
 
 \subsection{Table}
 
