@@ -175,6 +175,9 @@ where the most common stride is 64.
 \subsection{Algorithm}
 
 Pseudocode for the algorithm used can be found in Algorithm~\ref{alg:stride}.
+The algorithm first tries to find a pattern of size $n$, then $n-1$ and so
+on until it tries to find a pattern of size $1$. If no such patterns are
+found it goes on to try finding a most common stride.
 
 As we can see there are a few constants in the algorithm that can be
 tuned. These are
@@ -184,7 +187,7 @@ tuned. These are
 	\item \textbf{ THRESHOLD\subscript{stride}} \\ Determines when there is a match.
 	For perfect matching this should be equal to the pattern size \\
 	\item \textbf{ AGGR\subscript{stride}} \\ The aggresiveness determines how far
-	ahead we should prefetch \\
+	ahead we should prefetch. This is also called prefetch degree \\
 	\item \textbf{ THRESHOLD\subscript{mcs}} \\
 	\item \textbf{ AGGR\subscript{mcs}} \\  Same as the stride equivalent \\
 \end{itemize}
@@ -226,7 +229,8 @@ they are used.
 					\For{$j = 0 \to$ AGGR\subscript{stride}}
 						\State $k \gets i - 1 - mod(i,j)$
 						\If{$hit_k$}
-							\State \textsc{prefetch}($a_0 + s_k \cdot (\lfloor \frac{j}{i} \rfloor + 1)$)
+							%\State \textsc{prefetch}($a_0 + s_k \cdot (\lfloor \frac{j}{i} \rfloor + 1)$)
+							\State \textsc{prefetch}($a_0 + s_k + s_0 \cdot (\lfloor \frac{j}{i} \rfloor)$)
 						\EndIf
 					\EndFor
 					\State {\bfseries return} \textnormal{true}
