@@ -1,1 +1,39 @@
-\todo{TODO: prefetch alle most common strides}
+The prefetcher presented in this report ...
+
+\subsection{Table Parameters}
+At a certain point the effect of giving the prefetcher more memory is virtually
+zero. Fig.~\ref{fig:table_size_chart} shows that there seems to be no point in
+having more than 256 entries. This we believe is caused by instruction
+conflicts in the table. When the table reaches a certain size, most
+instructions get their own place in the table, and avoid being evicted by
+conflicting instructions.
+A interesting observation is that it dips down at 8192 entries. This seems
+to be due to a single benchmark, \emph{twolf}.
+
+Fig.~\ref{fig:bits} shows the speedup related to bits per access.
+We see a great increase up to 12 bits, then it slowly flattens out,
+and we get the same speedup for 18 and 20 bits.
+\todo{Write something clever}
+
+The last table parameter we changed was the maximum pattern size.
+This was done by changing the number of accesses per entry.
+With $2n+1$ accesses we can match patterns up to size $n$.
+These results can be seen in Fig.~\ref{fig:pattern_size}.
+We also see that there is not much gain in having more than 13
+accesses per entry (13 accesses gives us a max pattern size of 6).
+However when we tested adding more accesses per entry, and thus
+increasing the maximum pattern size, we had the aggressiveness
+set to the pattern size. Therefore it is possible that the bigger
+patterns lead to a too high aggressiveness. It would be interesting
+to run the tests with static aggressiveness to see if we saw the
+same fall (or at least flatting out) in performance above 13 accesses
+per entry.
+
+If we take the best of all these parameters we end up with a table size
+of 256, 13 accesses per entry and 18 bits per access. This makes
+the total table $256 \cdot 13 \cdot 18 = 59904 bits = 7488 bytes$ large.
+
+\subsection{Other parameters}
+An interesting result is shown in Fig.~\ref{fig:mcs_tweaks}.
+We see that most common stride works best when the aggressiveness
+is as high as six, and the threshold is at three.
