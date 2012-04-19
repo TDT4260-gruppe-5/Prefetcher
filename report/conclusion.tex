@@ -14,7 +14,7 @@ strides, say 128 and 192, only the first one will be prefetched.
 
 Another thing we think could be worth looking at is making the most common
 stride threshold dependent on the the number of the most common stride.
-That way more strides in common would result in more cachelines fetched.
+That way more strides in common would result in more cache lines fetched.
 
 Finally it could be interesting to look at using relative strides instead of
 absolute strides, and only focus on perfect matches. It is possible this would

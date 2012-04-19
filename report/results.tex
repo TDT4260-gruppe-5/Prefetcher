@@ -42,7 +42,7 @@ threshold. Fig.~\ref{fig:aggr} shows the speedup with the aggressiveness set to
 a fraction of the pattern size. We get the best result when the aggressiveness
 is $\frac{5}{6}$ of the pattern size.
 
-We also tried varying the threshold, from perfect matching to varying kinds of
+We also tried tuning the threshold, from perfect matching to various kinds of
 partial matching, but the results were discouraging. Perfect matching was
 better in all cases.
 
@@ -57,9 +57,9 @@ better in all cases.
 For the most common stride part of the algorithm we tested different parameters
 for aggressiveness and threshold. Fig.~\ref{fig:mcs_tweaks} shows the results
 of the different simulations.
-The figure also shows the line for threshold 4 rising at the end of the chart,
-which is the reason for the additional data point acquired by running a single
-extra test.
+The reason for the extra data point for Threshold=4 was that the line went
+up from 7 to 8. We therefore chose to run an extra test to check if the
+trend continued with aggressiveness=9.
 
 \begin{figure}
 	\input{gnuplot/mcs}
