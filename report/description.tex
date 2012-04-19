@@ -50,18 +50,18 @@ table. Each table entry contains a list of the last memory accesses and misses
 by the program counter that maps to this entry. On a hit or a miss the address
 of the access is added at the front of the list corresponding to the program
 counter of the instruction that made the access while the rest if shifted on
-place to the right. In hardware this would be implemented with a ringbuffer. A
+place to the right. In hardware this would be implemented with a ring buffer. A
 graphical representation of the table can be seen in Fig.~\ref{fig:table}. The
 exact number of accesses to store in each entry can be tweaked. More addresses
 per entry allows larger patterns to be detected, but reduces the number of
 entries using the same amount of memory. Larger patterns might allow you to
 catch more, while more entries reduces the chance of collision.
 
-To save space we can store only the lower $k$ bits in every address. We can
-also avoid saving the lower 6 bits because the simulated computer uses 64 byte
-cachelines, therefore the lower 6 bits of addresses to blocks in the cache will
-always be 0. With $k=16$ we store only 10 bits and can correctly identify
-patterns as long as the biggest stride is less than $2^{16}$.
+To save space we store only the lower $k$ bits in every address. Because the
+simulated computer uses 64 byte cache lines, the lower 6 bits of addresses in
+the cache will always be 0, and can safely be ignored. With $k=16$ we store
+only 10 bits and can correctly identify patterns as long as the biggest stride
+is less than $2^{16}$.
 
 Because the table size is much smaller
 than the number of possible program counters, several instructions could use
