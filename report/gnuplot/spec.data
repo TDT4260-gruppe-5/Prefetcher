@@ -1,13 +1,13 @@
-"graph" "No prefetcher" "m3-6si"
-"ammp" 1 1.607
-"applu" 1 1.085
-"apsi" 1 1.048
-"art110" 1 1.060
-"art470" 1 1.060
-"bzip2 graphic" 1 1.135
-"bzip2 program" 1 1.060
-"bzip2 source" 1 1.017
-"galgel" 1 1.093
-"swim" 1 1.032
-"twolf" 1 0.986
-"wupwise" 1 1.247
+"graph" "No prefetcher" "Our prefetcher" "DCPT" "RPT"
+"ammp" 1 1.607 1.356 1.279
+"applu" 1 1.085 1.089 1.030
+"apsi" 1 1.074 1.085 1.012
+"art110" 1 1.060 1.057 1.037
+"art470" 1 1.060 1.057 1.037
+"bzip2 graphic" 1 1.135 1.136 1.029
+"bzip2 program" 1 1.048 1.041 1.030
+"bzip2 source" 1 1.018 1.006 0.988
+"galgel" 1 1.093 1.077 1.022
+"swim" 1 1.038 1.048 1.018
+"twolf" 1 0.983 0.963 1.006
+"wupwise" 1 1.248 1.248 1.249
