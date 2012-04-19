@@ -1,11 +1,11 @@
-In this paper we present a stride prefetcher that is influenced by Delta Correlation
-Prediction Table prefetchers. But instead of storing delta values it stores addresses.
+In this paper we present a stride prefetcher that uses pattern matching and
+most common stride. It is influenced by Delta Correlation Prediction Table
+prefetchers, but instead of storing delta values it stores addresses.
 
-The prefetcher first looks for a perfect or partial matching among the delta values calculated from the 
-addresses, but if that fails it looks for the most common stride.
+The prefetcher first looks for a perfect or partial matching among the delta
+values calculated from the addresses, but if that fails it looks for the most
+common stride.
 
-Using the SPEC CPU2000 benchmark suite together with the M5 simulator, the resulting 
-prefetcher achieves an average speedup of 10.4\% compared to no prefetcher at all.
-Max achieved speedup was 60\% with the \emph{ammp} program. 
-
-
+Using the SPEC CPU2000 benchmark suite together with the M5 simulator, the
+resulting prefetcher achieves an average speedup of 10.4\% compared to no
+prefetcher at all. Max achieved speedup was 60\% with the \emph{ammp} program.
