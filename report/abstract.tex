@@ -1,6 +1,11 @@
 In this paper we present a stride prefetcher that is influenced by Delta Correlation
-Prediction Table prefetchers. The data structure used requires less bits per entry than the
-DCPT, allowing it to have more entries in the table. 
+Prediction Table prefetchers. But instead of storing delta values it stores addresses.
 
-Using the SPEC CPU2000 benchmark suite the resulting prefetcher achieves a 
-speedup of \speedup compared to no prefetcher at all.
+The prefetcher first looks for a perfect or partial matching among the delta values calculated from the 
+addresses, but if that fails it looks for the most common stride.
+
+Using the SPEC CPU2000 benchmark suite together with the M5 simulator, the resulting 
+prefetcher achieves an average speedup of 10.4\% compared to no prefetcher at all.
+Max achieved speedup was 60\% with the \emph{ammp} program. 
+
+
