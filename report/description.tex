@@ -70,8 +70,9 @@ than optimal prefetching. With a sufficiently large table the chance of two
 instructions clashing would be negligible. In addition the table entry is found
 by taking the program counter modulo the table size. This ensures that
 instructions that is less than table size apart will map to different table
-entries, meaning all instructions in a small loop is likely to map to different
-table entries.
+entries, meaning all instructions in a small loop is likely to map to different table entries.
+
+The reason for these limitations on the table other than the obvious benefit of using less space, was that the course staff had set down a 8KB limit on memory usage.
 
 \subsection{Pattern Matching}
 
