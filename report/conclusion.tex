@@ -1,9 +1,13 @@
-In this paper we have presented our own prefetcher based on the principles of strides. It tries to match patterns in the access history on a local (per PC) basis. We try to find a perfect match, and if this is not found, then we fall back on Most Common Stride.
+In this paper we have presented our own prefetcher based on the principles of
+strides. It tries to match patterns in the access history on a local (per PC)
+basis. We try to find a perfect match, and if this is not found, we fall back
+on Most Common Stride.
 
-After thorough tweaking of parameters, our prefetcher achieved a speedup of \speedup compared to no prefetcher. 
+After thorough testing with different values for the parameters, our prefetcher
+achieved an average speedup of 10.4\% compared to no prefetcher.
 
 \subsection{Future Work}
-There is a few cases we think would be interesting to look at, but did not have
+There are a few cases we think would be interesting to look at, but did not have
 time to test. The first one would be to prefetch all most common strides, not
 just the first one. Currently if there is the same number of two different
 strides, say 128 and 192, only the first one will be prefetched.
