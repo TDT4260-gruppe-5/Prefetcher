@@ -37,3 +37,8 @@ the total table $256 \cdot 13 \cdot 18 = 59904 bits = 7488 bytes$ large.
 An interesting result is shown in Fig.~\ref{fig:mcs_tweaks}.
 We see that most common stride works best when the aggressiveness
 is as high as six, and the threshold is at three.
+
+It was also interesting to see that partial matching did not fare very well.
+With this in mind one could optimize the algorithm a little by using relative
+strides instead of absolute strides, as there is no difference between those
+with perfect matching.
