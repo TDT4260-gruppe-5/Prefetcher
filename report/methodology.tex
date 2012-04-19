@@ -18,12 +18,14 @@ that affect the performance. Since we had limited computing power there were no
 way we could test all permutations, so we tested by varying one or two
 parameters at a time, with the rest fixed. The order we tested them in were:
 
+~
 \begin{itemize}
 	\item Most Common Stride parameters (aggressiveness and threshold)
 	\item Table size
 	\item Number of accesses per table entry
 	\item Aggressiveness and threshold for the pattern matching
 \end{itemize}
+~
 
 When we tested the table parameters we did not try to stay within 8 KB of
 memory, because that would require us to scale the number of entries and/or
