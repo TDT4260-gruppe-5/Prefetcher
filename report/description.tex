@@ -49,7 +49,7 @@ To keep track of the previous memory accesses of a program counter we use a
 table. Each table entry contains a list of the last memory accesses and misses
 by the program counter that maps to this entry. On a hit or a miss the address
 of the access is added at the front of the list corresponding to the program
-counter of the instruction that made the access while the rest if shifted on
+counter of the instruction that made the access while the rest if shifted one
 place to the right. In hardware this would be implemented with a circular buffer. A
 graphical representation of the table can be seen in Fig.~\ref{fig:table}. The
 exact number of accesses to store in each entry can be tweaked. More addresses
