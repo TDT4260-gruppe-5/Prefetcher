@@ -7,22 +7,22 @@ These programs were chosen by the course staff for us.
 The benchmarks were started at a checkpoint taken after
 1,000,000,000 instructions, and then run for 100,000,000 instructions.
 The simulated computer uses an ALPHA CPU running at 2GHz
-with a 2-way 64KB L1 data cache. It also has an 8-way 2MB L2 cache that is
+with a 2-way 64KB L1 data cache. It also has an 8-way 1MB L2 cache that is
 connected to main memory by an 8 byte wide bus running at
 400MHz. Main memory has a latency of 30ns.
 
 The algorithm has four parameters that can be changed. In addition there are
 three parameters for the table: table size, the number of accesses to save per
 entry and the number of bits per access. In total that gives seven parameters
-that affect the performance. Since we had limited computing power there were no way we
-could test all those, so we tested one or two at a time, with the rest fixed.
-The order we tested them in were:
+that affect the performance. Since we had limited computing power there were no
+way we could test all permutations, so we tested by varying one or two
+parameters at a time, with the rest fixed. The order we tested them in were:
 
 \begin{itemize}
 	\item Most Common Stride parameters (aggressiveness and threshold)
 	\item Table size
 	\item Number of accesses per table entry
-	\item Aggressiveness and prefetch distance for the pattern matching
+	\item Aggressiveness and threshold for the pattern matching
 \end{itemize}
 
 When we tested the table parameters we did not try to stay within 8 KB of

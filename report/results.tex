@@ -1,5 +1,7 @@
 Fig.~\ref{fig:prefetcher_speedup} shows the speedup of our best prefetcher
-compared to running the test without a prefetcher. As you can see from the
+compared with no prefetcher and DCPT and RPT discussed in Related Work.
+%compared to running the test without a prefetcher.
+As you can see from the
 chart there is an all-round good speedup, in addition to certain test which
 have higher speedup. Only the \emph{twolf} benchmark runs slower with the
 prefetcher.
@@ -15,35 +17,38 @@ We tested with different values for table size, pattern size and bits per addres
 Fig.~\ref{fig:table_size_chart} shows the speedup with different table sizes.
 Fig.~\ref{fig:pattern_size} shows the speedup with different pattern sizes.
 Fig.~\ref{fig:bits} shows the results from using various bits per access.
-%As you can see from Fig.~\ref{fig:table_size_chart}, the performance stopped
-%increasing after a table size of 256. This we believe is caused by instruction
-%conflicts in the table. When the table reaches a certain size, most
-%instructions get their own place in the table, and avoid being evicted by
-%conflicting instructions.
 
 \begin{figure}
 	\input{gnuplot/tablesize}
-	\caption{Speedup with different table sizes}
+	\caption{Speedup vs. table size}
 	\label{fig:table_size_chart}
 \end{figure}
 
 \begin{figure}
 	\input{gnuplot/patternsize}
-	\caption{Speedup with different pattern sizes}
+	\caption{Speedup vs. pattern size}
 	\label{fig:pattern_size}
 \end{figure}
 
 \begin{figure}
 	\input{gnuplot/bits}
-	\caption{Speedup vs bits per access}
+	\caption{Speedup vs. bits per access}
 	\label{fig:bits}
 \end{figure}
 
-\subsection{Stride}
+\subsection{Pattern Matching Results}
+For the pattern matching code we tried varying both aggressiveness and
+threshold. Fig.~\ref{fig:aggr} shows the speedup with the aggressiveness set to
+a fraction of the pattern size. We get the best result when the aggressivenss
+is $\frac{5}{6}$ of the pattern size.
+
+We also tried varying the threshold, from perfect matching to varying kinds of
+partial matching, but the results were discouraging. Perfect matching was
+better in all cases.
 
 \begin{figure}
 	\input{gnuplot/aggr}
-	\caption{Stride aggressiveness}
+	\caption{Speedup vs. stride aggressiveness}
 	\label{fig:aggr}
 \end{figure}
 
@@ -55,15 +60,6 @@ of the different simulations.
 The figure also shows the line for threshold 4 rising at the end of the chart,
 which is the reason for the additional data point aquired by running a single
 extra test.
-
-%The final solution was selected after thorough testing and tweaking of the
-%prefetcher. The different results from the tests can be seen in
-%Fig.~\ref{fig:prefetcher_tweaks}. Each line represents different values for the
-%threshold, and the x-axis shows the values for the count variable. From the
-%figure we can clearly see which parameters provides the best speedup. The
-%figure also showed the line for threshold 4 rising at the end of the chart,
-%which is the reason for the additional data point aquired by running a single
-%extra test.
 
 \begin{figure}
 	\input{gnuplot/mcs}

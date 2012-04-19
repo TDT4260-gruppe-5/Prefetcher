@@ -46,20 +46,22 @@ addresses instead of the delta values, and nothing else.
 \end{figure}
 
 To keep track of the previous memory accesses of a program counter we use a
-table. Each table entry contains a list of the last memory accesses
-and misses by the program counter that maps to this entry.
-A graphical representation of the table can be seen in Fig.~\ref{fig:table}.
-The exact number of accesses to store in each entry can be tweaked.
-More addresses per entry allows larger patterns to be detected,
-but reduces the number of entries using the same amount of memory.
-Larger patterns might allow you to catch more, while more entries
-reduces the chance of collision.
+table. Each table entry contains a list of the last memory accesses and misses
+by the program counter that maps to this entry. On a hit or a miss the address
+of the access is added at the front of the list corresponding to the program
+counter of the instruction that made the access while the rest if shifted on
+place to the right. In hardware this would be implemented with a ring buffer. A
+graphical representation of the table can be seen in Fig.~\ref{fig:table}. The
+exact number of accesses to store in each entry can be tweaked. More addresses
+per entry allows larger patterns to be detected, but reduces the number of
+entries using the same amount of memory. Larger patterns might allow you to
+catch more, while more entries reduces the chance of collision.
 
-To save space we can store only the lower $k$ bits in every address. We can
-also avoid saving the lower 6 bits because the simulated computer uses 64 byte
-cachelines, therefore the lower 6 bits of addresses to blocks in the cache will
-always be 0. With $k=16$ we store only 10 bits and can correctly identify
-patterns as long as the biggest stride is less than $2^{16}$.
+To save space we store only the lower $k$ bits in every address. Because the
+simulated computer uses 64 byte cache lines, the lower 6 bits of addresses in
+the cache will always be 0, and can safely be ignored. With $k=16$ we store
+only 10 bits and can correctly identify patterns as long as the biggest stride
+is less than $2^{16}$.
 
 Because the table size is much smaller
 than the number of possible program counters, several instructions could use
@@ -146,32 +148,11 @@ An example of a perfect match can be seen in Table~\ref{table:pattern}.
 In addition to the pattern matching above, we also implemented most common stride
 prefetching. This was added as a fallback measure if the pattern matching code
 was unable to find a pattern.
-It looks for the most common stride, and if the number
-is more than some number
-of these strides it will use this stride to prefetch a
+It looks for the most common relative stride, and if the number
+of this stride is over a threshold
+it will use it to prefetch a
 set number of cache lines.
-Table~\ref{table:mcs} shows a history of accesses
-where the most common stride is 64.
-\begin{table}
-	\caption{Example of Most Common Stride}
-	\centering
-	\label{table:mcs}
-	\begin{tabular}{c|c}
-		\bfseries Address & \bfseries Stride (Relative)\\
-		\hline
-		0   & \\
-		    & 64\\
-		64  & \\
-		    & 64\\
-		128 & \\
-		    & 128\\
-		256 & \\
-		    & 64\\
-		320 & \\
-		    & 64\\
-		386 & \\
-	\end{tabular}
-\end{table}
+In Table~\ref{table:pattern} the most common stride is 64.
 
 \subsection{Algorithm}
 
@@ -187,15 +168,18 @@ tuned. These are
 \begin{itemize}
 	\item \textbf{ THRESHOLD\subscript{stride}} \\ Determines when there is a match.
 	For perfect matching this should be equal to the pattern size \\
-	\item \textbf{ AGGR\subscript{stride}} \\ The aggresiveness determines how far
-	ahead we should prefetch. This is also called prefetch degree \\
-	\item \textbf{ THRESHOLD\subscript{mcs}} \\
+	\item \textbf{ AGGR\subscript{stride}} \\ The aggresiveness determines how many
+	cachelines we should prefetch. This is also called prefetch degree \\
+	\item \textbf{ THRESHOLD\subscript{mcs}} \\ Sets a lower limit on how many
+	there must be of the most commons stride before starting to prefetch \\
 	\item \textbf{ AGGR\subscript{mcs}} \\  Same as the stride equivalent \\
 \end{itemize}
 
 It is important to note that these ``constants'' are actually C macros in our
 source code, so they could depend on any variables in scope on the location
 they are used.
+Specifically \textbf{THRESHOLD\subscript{stride}} and
+\textbf{AGGR\subscript{stride}} could depend on the pattern size.
 
 \algnotext{EndIf}
 \algnotext{EndFor}
@@ -214,7 +198,6 @@ they are used.
 		\Function{stride\_prefetching}{$a_0$, $a_1$, \dots, $a_{2n}$}
 			\For{$i = n \to 1$}
 				\State $hits \gets 0$
-%				\State $hit_j \gets$ \textnormal{false} $\quad \text{for } \, 0 \leq j \leq i - 1$
 				\For{$j = 0 \to i - 1$}
 					\State $hit_j \gets$ \textnormal{false}
 					\State $s_j \gets a_j - a_i$
@@ -230,7 +213,6 @@ they are used.
 					\For{$j = 0 \to$ AGGR\subscript{stride}}
 						\State $k \gets i - 1 - mod(i,j)$
 						\If{$hit_k$}
-							%\State \textsc{prefetch}($a_0 + s_k \cdot (\lfloor \frac{j}{i} \rfloor + 1)$)
 							\State \textsc{prefetch}($a_0 + s_k + s_0 \cdot (\lfloor \frac{j}{i} \rfloor)$)
 						\EndIf
 					\EndFor
