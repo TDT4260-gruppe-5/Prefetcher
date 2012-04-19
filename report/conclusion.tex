@@ -3,9 +3,15 @@ In this paper we have presented our own prefetcher based on the principles of st
 After thorough tweaking of parameters, our prefetcher acheived a speedup of \speedup compared to no prefetcher. 
 
 \subsection{Future Work}
+There is a few cases we think would be interesting to look at, but did not have
+time to test. The first one would be to prefetch all most common strides, not
+just the first one. Currently if there is the same number of two different
+strides, say 128 and 192, only the first one will be prefetched.
 
-Prefetch alle most common stride
+Another thing we think could be worth looking at is making the most common
+stride threshold dependent on the the number of the most common stride.
+That way more strides in common would result in more cachelines fetched.
 
-Aggressiveness most common stride avhengig av count
-
-\todo{TODO: prefetch alle most common strides}
+Finally it could be intersting to look at using relative strides instead of
+absolute strides, and only focus on perfetct matches. It is possible this would
+allow less bits per access while keeping the same performance.

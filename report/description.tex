@@ -109,7 +109,7 @@ intuitive relative stride. If we have a partial match, for example in a pattern
 $a, b, x, d, a, b, y, d$ of length four with relative strides we can prefetch
 with $a$ and $b$, but when it comes to $d$ we can not use it since it is
 relative to the address after $x$ and $y$ which is not the same. However, if we
-used absolute strides, $d$ would be relative to the same address as $a$ and $b$
+used absolute strides,~$d$~would be relative to the same address as $a$ and $b$
 and could easily be used to prefetch.
 
 \begin{table}[htb]
