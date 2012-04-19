@@ -13,7 +13,7 @@ to be due to a single benchmark, \emph{twolf}.
 Fig.~\ref{fig:bits} shows the speedup related to bits per access.
 We see a great increase up to 12 bits, then it slowly flattens out,
 and we get the same speedup for 18 and 20 bits.
-\todo{Write something clever}
+This is expected, as more bits allows bigger stride patterns to fit.
 
 The last table parameter we changed was the maximum pattern size.
 This was done by changing the number of accesses per entry.
@@ -26,7 +26,7 @@ increasing the maximum pattern size, we had the aggressiveness
 set to the pattern size. Therefore it is possible that the bigger
 patterns lead to a too high aggressiveness. It would be interesting
 to run the tests with static aggressiveness to see if we saw the
-same fall (or at least flatting out) in performance above 13 accesses
+same fall in performance above 13 accesses
 per entry.
 
 If we take the best of all these parameters we end up with a table size
