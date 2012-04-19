@@ -52,7 +52,7 @@ of the access is added at the front of the list corresponding to the program
 counter of the instruction that made the access while the rest if shifted one
 place to the right. In hardware this would be implemented with a circular buffer. A
 graphical representation of the table can be seen in Fig.~\ref{fig:table}. The
-exact number of accesses to store in each entry can be tweaked. More addresses
+exact number of accesses to store in each entry can be tuned. More addresses
 per entry allows larger patterns to be detected, but reduces the number of
 entries using the same amount of memory. Larger patterns might allow you to
 catch more, while more entries reduces the chance of collision.
@@ -63,23 +63,25 @@ the cache will always be 0, and can safely be ignored. With $k=16$ we store
 only 10 bits and can correctly identify patterns as long as the biggest stride
 is less than $2^{16}$.
 
-Because the table size is much smaller
-than the number of possible program counters, several instructions could use
-the same table entry. If this happened in a real program it could lead to less
-than optimal prefetching. With a sufficiently large table the chance of two
-instructions clashing would be negligible. In addition the table entry is found
-by taking the program counter modulo the table size. This ensures that
-instructions that is less than table size apart will map to different table
-entries, meaning all instructions in a small loop is likely to map to different table entries.
+Because the table size is much smaller than the number of possible program
+counters, several instructions could use the same table entry. If this happened
+in a real program it could lead to less than optimal prefetching. With a
+sufficiently large table the chance of two instructions clashing would be
+negligible. In addition the table entry is found by taking the program counter
+modulo the table size. This ensures that instructions that is less than table
+size apart will map to different table entries, meaning all instructions in a
+small enough loop will map to different table entries.
 
-The reason for these limitations on the table other than the obvious benefit of using less space, was that the course staff had set down a 8KB limit on memory usage.
+The reason for these limitations on the table, other than the obvious benefit
+of using less space, was that the course staff had set down a 8KB limit on
+memory usage.
 
 \subsection{Pattern Matching}
 
 When the table begins to fill we are able to find patterns in the memory accesses.
 To find these patterns we calculate relative and absolute strides.
 The relative stride is the difference between two consecutive
-addresses. Absolute strides are calculated by choosing a pattern size n,
+addresses. Absolute strides are calculated by choosing a pattern size $n$,
 and then computing the difference between the address at position
 $n$ to every address before $n$, and then doing the same for the address
 at position $2n$.
@@ -96,7 +98,7 @@ $i$ in the table. Note that the newest address is at index 0 in the table. A
 perfect match is found if
 \begin{equation}
 \label{eq:match}
-\forall i \in \{0 \dots n - 1\} \,.\, s_i = s_{i + n}
+\forall i \in \{0 \dots n - 1\}, \quad s_i = s_{i + n}
 \end{equation}
 
 It is also possible to find a partial match. We then simply relax the
@@ -156,7 +158,7 @@ was unable to find a pattern.
 It looks for the most common relative stride, and if the number
 of this stride is over a threshold
 it will use it to prefetch a
-set number of cache lines.
+constant number of cache lines.
 In Table~\ref{table:pattern} the most common stride is 64.
 
 \subsection{Algorithm}\label{sec:algorithm}
