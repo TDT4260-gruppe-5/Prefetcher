@@ -158,7 +158,7 @@ it will use it to prefetch a
 set number of cache lines.
 In Table~\ref{table:pattern} the most common stride is 64.
 
-\subsection{Algorithm}
+\subsection{Algorithm}\label{sec:algorithm}
 
 Pseudocode for the algorithm used can be found in Algorithm~\ref{alg:stride}.
 The algorithm first tries to find a pattern of size $n$, then $n-1$ and so
@@ -172,8 +172,8 @@ tuned. These are
 \begin{itemize}
 	\item \textbf{ THRESHOLD\subscript{stride}} \\ Determines when there is a match.
 	For perfect matching this should be equal to the pattern size \\
-	\item \textbf{ AGGR\subscript{stride}} \\ The aggresiveness determines how many
-	cachelines we should prefetch. This is also called prefetch degree \\
+	\item \textbf{ AGGR\subscript{stride}} \\ The aggressiveness determines how many
+	cache lines we should prefetch. This is also called prefetch degree \\
 	\item \textbf{ THRESHOLD\subscript{mcs}} \\ Sets a lower limit on how many
 	there must be of the most commons stride before starting to prefetch \\
 	\item \textbf{ AGGR\subscript{mcs}} \\  Same as the stride equivalent \\
