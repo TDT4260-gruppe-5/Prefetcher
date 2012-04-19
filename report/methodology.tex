@@ -11,7 +11,7 @@ with a 2-way 64KB L1 data cache. It also has an 8-way 1MB L2 cache that is
 connected to main memory by an 8 byte wide bus running at
 400MHz. Main memory has a latency of 30ns.
 
-The algorithm has four parameters that can be changed. In addition there are
+The algorithm has, as mentioned in Section~\ref{sec:algorithm}, four parameters that can be changed. In addition there are
 three parameters for the table: table size, the number of accesses to save per
 entry and the number of bits per access. In total that gives seven parameters
 that affect the performance. Since we had limited computing power there were no
@@ -27,21 +27,6 @@ parameters at a time, with the rest fixed. The order we tested them in were:
 \end{itemize}
 ~
 
-When we tested the table parameters we did not try to stay within 8 KB of
-memory, because that would require us to scale the number of entries and/or
-bits per access at the same time.
-
-\comment{
-During testing of our prefetcher we tested changing many different parameters.
-
-table size (n+1)
-number of entries (pc)
-
-Stride:
-Threshold
-aggressiveness
-
-MCS:
-Threshold
-aggressiveness
-}
+When we tested the table parameters we did not try to stay within 8 KB, which
+was the given limit for the memory usage. This was because it would require us to
+vary more than the parameters we tested.
