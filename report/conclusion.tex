@@ -1,6 +1,6 @@
 In this paper we have presented our own prefetcher based on the principles of strides. It tries to match patterns in the access history on a local (per PC) basis. We try to find a perfect match, and if this is not found, then we fall back on Most Common Stride.
 
-After thorough tweaking of parameters, our prefetcher acheived a speedup of \speedup compared to no prefetcher. 
+After thorough tweaking of parameters, our prefetcher achieved a speedup of \speedup compared to no prefetcher. 
 
 \subsection{Future Work}
 There is a few cases we think would be interesting to look at, but did not have
@@ -12,6 +12,6 @@ Another thing we think could be worth looking at is making the most common
 stride threshold dependent on the the number of the most common stride.
 That way more strides in common would result in more cachelines fetched.
 
-Finally it could be intersting to look at using relative strides instead of
-absolute strides, and only focus on perfetct matches. It is possible this would
+Finally it could be interesting to look at using relative strides instead of
+absolute strides, and only focus on perfect matches. It is possible this would
 allow less bits per access while keeping the same performance.
